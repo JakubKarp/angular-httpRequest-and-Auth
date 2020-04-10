@@ -1,8 +1,10 @@
+import { PostService } from './post.service';
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firebase } from '../../firebase/firebase';
-import { map} from 'rxjs/operators';
-import { Post } from './post.model'
+
+import { Post } from './post.model';
+
 
 
 @Component({
@@ -14,58 +16,31 @@ export class AppComponent implements OnInit {
   loadedPosts = [];
   isFetching = false;
 
-  constructor(private http: HttpClient) {}
+  // tslint:disable-next-line: no-shadowed-variable
+  constructor(private http: HttpClient, private PostService: PostService) {}
 
   ngOnInit() {
-    this.fetchPost()
+    this.isFetching = true;
+    this.PostService.fetchPost().subscribe(posts => {
+      this.isFetching = false;
+      this.loadedPosts = posts;
+    });
   }
 
   onCreatePost(postData: Post) {
-    // console.log(postData);
-
-    // Send Http request
-    this.http
-      .post<{name: string}>(
-        `${firebase}/post.json`,
-        postData
-      )
-      // request will be only sended if you subscribe
-      .subscribe(responseData => {
-        console.log(responseData);
-      });
+    this.PostService.createAndStorePost(postData.title, postData.content);
   }
 
   onFetchPosts() {
-    this.fetchPost()
+    this.isFetching = true;
+    this.PostService.fetchPost().subscribe(posts => {
+      this.isFetching = false;
+      this.loadedPosts = posts;
+    });
   }
 
   onClearPosts() {
     // Send Http request
   }
-
-  private fetchPost() {
-    this.isFetching = true;
-    this.http
-    .get<{[key: string]: Post}>(`${firebase}/post.json`)
-    // to change json to array - pipe
-    .pipe(map(responseData => {
-    // można tu przekazać typy, ale też wyżej, zaraz za get
-    // .pipe(map((responseData: {[key: string]: Post }) => {
-      const postsArray: Post[] = [];
-      for (const key in responseData) {
-        if(responseData.hasOwnProperty(key)) {
-          postsArray.push({ ...responseData[key], id: key })
-        }
-      }
-      return postsArray
-    }))
-    // request will be only sended if you subscribe
-    .subscribe(posts => {
-      console.log(posts);
-      this.isFetching = false;
-      this.loadedPosts = posts;
-    })
-  };
-
 
 }
