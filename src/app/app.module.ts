@@ -1,3 +1,4 @@
+import { AuthComponent } from './auth/auth.component';
 import { AuthInterceptorService } from './auth-interceptor';
 import { LogginInterceptorService } from './loggin-interceptor';
 import { BrowserModule } from '@angular/platform-browser';
@@ -8,7 +9,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppComponent } from './app.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, AuthComponent],
   imports: [BrowserModule, FormsModule, HttpClientModule],
   // żeby zarejestrować interceptor
   providers: [
